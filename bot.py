@@ -2,6 +2,8 @@ import config
 import telebot
 
 #123
+#321
+#321321
 bot = telebot.TeleBot(config.TOKEN)
 
 
@@ -19,3 +21,7 @@ def hello(message):
 def test(message):
     if 'тест222' in message.text.lower():
         bot.send_message(message.chat.id, 'Тест')
+
+bot.polling()
+
+
