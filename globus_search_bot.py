@@ -1,7 +1,6 @@
 import config
 import telebot
 
-
 bot = telebot.TeleBot(config.TOKEN)
 
 
@@ -22,4 +21,3 @@ def test(message):
 
 bot.polling()
 
-#posoni ya s vami
