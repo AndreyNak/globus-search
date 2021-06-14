@@ -1,13 +1,11 @@
 from peewee import *
+import os
 
-def connect(path):
-    connect = SqliteDatabase(path)
-    if (connect):
+def connect():
+    conn = 'db/globus_database.db'
+    if os.path.isfile(conn):
         print('good')
-        return connect
+        return SqliteDatabase(conn)
     else:
         print('bad')
-        return
-
-        
-conn = connect('Chinook_Sqlite.sqlite')
+        exit()
