@@ -13,7 +13,7 @@ def wellcome(message):
     bot.send_message(message.chat.id, 'Здарова прогеры, я крутой бот ! \nМеня создал гений')
 
 
-@bot.message_handler(commands=['add','delete'])
+@bot.message_handler(commands=['add','delete', 'update'])
 def add_type(message):
     message_user = message.text
     if (message_user == '/add'):
@@ -24,6 +24,10 @@ def add_type(message):
         msg = bot.send_message(message.chat.id, 
         'Напишите название типа товара, который хотите удалить')
         bot.register_next_step_handler(msg, delete)
+    elif (message_user == '/update'):
+        msg = bot.send_message(message.chat.id, 
+        'Напишите название типа товара, который хотите изменить')
+        bot.register_next_step_handler(msg, update)
 
 def add(message):
     name_type = message.text
@@ -47,13 +51,29 @@ def delete(message):
         log = obg.delete_item()
         bot.send_message(message.chat.id, log)   
 
+def update(message):
+    name_type = message.text
+    if (len(name_type)) < 1:
+        msg = bot.send_message(message, 'Ну напиши ты что нибудь !')
+        bot.register_next_step_handler(msg, update)
+        return
+    else:
+        # obg = ControllerTypeGoods(name_type)
+        # #log = obg.delete_item()
+        # obg.update_search_item()
+        # obg.update_complite_item()
+        bot.send_message(message.chat.id, '{!В разработке!}')
+
+
 @bot.message_handler(content_types=['Здарова'])
 def hello(message):
     bot.send_message(message.chat.id, f'Здарова {message.from_user.first_name}')
 
-
-
-
+@bot.message_handler(commands=['show'])
+def show(message):
+    obj = ControllerTypeGoods()
+    obj.show_items()
+    bot.send_message(message.chat.id, )
 
 @bot.message_handler(content_types=['text'])
 def test(message):
@@ -62,6 +82,7 @@ def test(message):
 
 # bot.enable_save_next_step_handlers(delay=2)
 # bot.load_next_step_handlers()
+
 bot.polling()
 conn.close()
 
