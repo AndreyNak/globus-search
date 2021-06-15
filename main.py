@@ -11,3 +11,7 @@ def update():
     #--------------------Изменение--------------------
 
 
+
+obj = ControllerTypeGoods()
+set = obj.show_items()
+
