@@ -17,18 +17,11 @@ Con.m_cursor(conn)
 #--------------------Добавление--------------------
 
 #--------------------Изменение--------------------
-# question = input('Хотите изменить товар тип товара ? ')
-# if question == 'да':
-#     obg = ControllerTypeGoods(input('Название типа: '))
-#     obg.delete_item()   
-# else:
-#     print('пока!')
-#     exit() 
+# obg = ControllerTypeGoods(input('Название типа которое хочешь поменять: '))
+# obg.update_item()
 #--------------------Изменение--------------------
 
 
-obg = ControllerTypeGoods(input('Название типа которое хочешь поменять: '))
-obg.update_item()
 #--------------------Удаление--------------------
 # question = input('Хотите удалить тип товара ? ')
 # if question == 'да':
