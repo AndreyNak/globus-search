@@ -1,11 +1,16 @@
 from peewee import *
 import os
 
-def connect():
-    conn = 'db/globus_database.db'
-    if os.path.isfile(conn):
-        print('good')
-        return SqliteDatabase(conn)
-    else:
-        print('bad')
-        exit()
+
+class Con:
+    def connect():
+        db = 'db/globus_database.sqlite'
+        if os.path.isfile(db):
+            print('good')
+            return SqliteDatabase(db)
+        else:
+            print('bad')
+            exit()
+
+    def m_cursor(conn):
+        return conn.cursor()
