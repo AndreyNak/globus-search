@@ -1,5 +1,7 @@
 from db.models.base_model import Types
 import peewee
+import os
+
 
 class ControllerTypeGoods:
     def __init__(self, name_type=None):
@@ -14,8 +16,9 @@ class ControllerTypeGoods:
         item = Types.get(Types.type == self.name_type)
         return item.path
 
-    def add_item(self):
-        article = Types(type=self.name_type)
+    def add_item(self,path):
+        path_photo = f"photos/{path}"
+        article = Types(type=self.name_type,path=path_photo)
         article.save()
 
     
@@ -25,7 +28,8 @@ class ControllerTypeGoods:
         except Exception:
             return 'Не удален, потому что не найден !'
         else:
-             artist.delete_instance()
+            os.remove(f"{artist.path}")
+            artist.delete_instance()
 
     def update_item(self):
         artistId = Types.get(Types.type == self.name_type)
