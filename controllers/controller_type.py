@@ -9,7 +9,7 @@ class ControllerTypeGoods:
     
     def select_items(self):
         cur_query = Types.select()
-        return [i['type'] for i in cur_query.dicts().execute()]       
+        return [i['type']for i in cur_query.dicts().execute()]
         
 
     def show_item(self):
