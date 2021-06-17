@@ -8,7 +8,6 @@ Con.m_cursor(conn)
 
 bot = telebot.TeleBot(config.TOKEN)
 
-
 # @bot.message_handler(commands=['start'])
 # def wellcome(message):
 #     rmk = types.ReplyKeyboardMarkup(resize_keyboard = True)
@@ -126,15 +125,14 @@ def delete(message):
 def update(message):
     name_type = message.text
     if (len(name_type)) < 1:
-        msg = bot.send_message(message.chat.id, 'Ну напиши ты что нибудь !')
-        bot.register_next_step_handler(msg, update)
+        bot.send_message(message, 'Ну напиши ты что нибудь !')
         return
     else:
-        # obg = ControllerTypeGoods(name_type)
-        # #log = obg.delete_item()
-        # obg.update_search_item()
-        # obg.update_complite_item()
-        bot.send_message(message.chat.id, '{!В разработке!}')
+        obg = ControllerTypeGoods(name_type)
+        obg.delete_item()
+        msg = bot.send_message(message.chat.id, 
+          'Имя нового товара')
+        bot.register_next_step_handler(msg, add)
 
 
 
@@ -170,4 +168,3 @@ def update(message):
 # bot.load_next_step_handlers()
 bot.polling()
 conn.close()
-

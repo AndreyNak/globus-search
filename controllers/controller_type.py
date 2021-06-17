@@ -31,9 +31,9 @@ class ControllerTypeGoods:
             os.remove(f"{artist.path}")
             artist.delete_instance()
 
-    def update_item(self):
-        artistId = Types.get(Types.type == self.name_type)
-        new_word = input('На какое слово хочешь поменять ?')
-        artist = Types(type=new_word)
-        artist.id = artistId.id
-        artist.save()
+#     def update_item(self):
+#         artistId = Types.get(Types.type == self.name_type)
+#         new_word = input('На какое слово хочешь поменять ?')
+#         artist = Types(type=new_word)
+#         artist.id = artistId.id
+#         artist.save()
