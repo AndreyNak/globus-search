@@ -1,4 +1,4 @@
-#import config
+import config
 import telebot
 from telebot import types
 from main import *
@@ -6,9 +6,8 @@ from controllers.controller_type import ControllerTypeGoods
 conn = Con.connect()
 Con.m_cursor(conn)
 
-#bot = telebot.TeleBot(config.TOKEN)
-token = "1850230832:AAED80DMUF-tcR50VP252HRaOh0mCAu02hM"
-bot = telebot.TeleBot(token)
+bot = telebot.TeleBot(config.TOKEN)
+
 # @bot.message_handler(commands=['start'])
 # def wellcome(message):
 #     rmk = types.ReplyKeyboardMarkup(resize_keyboard = True)
