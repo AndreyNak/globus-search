@@ -21,7 +21,7 @@ bot = telebot.TeleBot(token)
 #     bot.register_next_step_handler(msg, menu)
 
 
-@bot.message_handler(commands=['start'])
+@bot.message_handler(commands=['start','help'])
 def wellcome(message):
     bot.send_message(message.chat.id, """Здарова прогеры, я крутой бот ! Меня создал гений.\n
     Список команд: \n
@@ -29,6 +29,8 @@ def wellcome(message):
     "Удалить" - Удалить элемент\n
     "Карта" - Показать карту глобуса\n
     "Здарова" - бот здоровается с тобой\n
+    "<Название товара>" - показывает на карте где находится\n
+    "<Фото-документ><Название>" - Добавить элемен\n
     """)
 
 
@@ -36,11 +38,11 @@ def wellcome(message):
 
 @bot.message_handler(content_types=['text'])
 def menu(message):
-    message_user = message.text
+    message_user = message.text.title()
     if (message_user == 'Добавить'):
         msg = bot.send_message(message.chat.id, 
-        'Напишите название типа товара, который хотите добавить')
-        bot.register_next_step_handler(msg, add)
+        'Отправьте фото документом и подпишите, что бы добавить элемент')
+        bot.register_next_step_handler(msg, photo_set)
     elif (message_user == 'Удалить'):
         msg = bot.send_message(message.chat.id, 
         'Напишите название типа товара, который хотите удалить')
@@ -56,7 +58,8 @@ def menu(message):
         hello(message)
     elif (check_item(message_user)):
         show_type_goods(message)
-
+    # else:
+    #     bot.send_message(message.chat.id, 'Ничего не найдено ☹')
 
 
 def show_map(message):
@@ -71,22 +74,23 @@ def show_type_goods(message):
 
 def check_item(message):
     obg = ControllerTypeGoods()
-    return message in obg.select_items()
+    return  message in obg.select_items()
+    
 
 def hello(message):
     bot.send_message(message.chat.id, f'Здарова {message.from_user.first_name}')
 
 @bot.message_handler(content_types=['document'])
 def photo_set(message):
-    name_type = message.caption
-    raw = message.document.file_id
-    path = raw+".jpg"
-    file_info = bot.get_file(raw)
-    downloaded_file = bot.download_file(file_info.file_path)
-    with open("photos/"+path,'wb') as new_file:
-        new_file.write(downloaded_file)
-    add(message, name_type, path)
-
+    if (message.caption != None):
+        name_type = message.caption
+        raw = message.document.file_id
+        path = raw+".jpg"
+        file_info = bot.get_file(raw)
+        downloaded_file = bot.download_file(file_info.file_path)
+        with open("photos/"+path,'wb') as new_file:
+            new_file.write(downloaded_file)
+        add(message, name_type, path)
 
 
 
@@ -100,15 +104,21 @@ def add(message,name_type, path):
         
 
 def delete(message):
-    name_type = message.text
+    name_type = message.text.title()
     if (len(name_type)) < 1:
         msg = bot.send_message(message.chat.id, 'Ну напиши ты что нибудь !')
         bot.register_next_step_handler(msg, delete)
         return
-    else:
-        obg = ControllerTypeGoods(name_type)
-        obg.delete_item()
-        bot.send_message(message.chat.id,'Экземпляр был успешно удален !')
+    elif name_type == 'Выход':
+        bot.send_message(message.chat.id, 'Вы вышлив в меню')
+        return
+    elif not check_item(name_type):
+        msg = bot.send_message(message.chat.id, 'Товар не найден !')
+        bot.register_next_step_handler(msg, delete)
+        return
+    obg = ControllerTypeGoods(name_type)
+    obg.delete_item()
+    bot.send_message(message.chat.id,'Экземпляр был успешно удален !')
 
 
 def update(message):
