@@ -1,4 +1,4 @@
 config.py
 test_functions.py
 __pycache__
-globus_database.sqlite
+db/globus_database.sqlite
