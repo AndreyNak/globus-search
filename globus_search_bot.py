@@ -1,4 +1,4 @@
-import config
+#import config
 import telebot
 from telebot import types
 from main import *
@@ -6,9 +6,9 @@ from controllers.controller_type import ControllerTypeGoods
 conn = Con.connect()
 Con.m_cursor(conn)
 
-bot = telebot.TeleBot(config.TOKEN)
-
-
+#bot = telebot.TeleBot(config.TOKEN)
+token = "1850230832:AAED80DMUF-tcR50VP252HRaOh0mCAu02hM"
+bot = telebot.TeleBot(token)
 # @bot.message_handler(commands=['start'])
 # def wellcome(message):
 #     rmk = types.ReplyKeyboardMarkup(resize_keyboard = True)
@@ -114,15 +114,14 @@ def delete(message):
 def update(message):
     name_type = message.text
     if (len(name_type)) < 1:
-        msg = bot.send_message(message.chat.id, 'Ну напиши ты что нибудь !')
-        bot.register_next_step_handler(msg, update)
+        bot.send_message(message, 'Ну напиши ты что нибудь !')
         return
     else:
-        # obg = ControllerTypeGoods(name_type)
-        # #log = obg.delete_item()
-        # obg.update_search_item()
-        # obg.update_complite_item()
-        bot.send_message(message.chat.id, '{!В разработке!}')
+        obg = ControllerTypeGoods(name_type)
+        obg.delete_item()
+        msg = bot.send_message(message.chat.id, 
+          'Имя нового товара')
+        bot.register_next_step_handler(msg, add)
 
 
 
