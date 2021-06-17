@@ -57,7 +57,9 @@ def menu(message):
     elif (message_user == 'Здарова'):
         hello(message)
     elif (check_item(message_user)):
+        message.text = check_item(message_user)
         show_type_goods(message)
+    #print(check_item(message))
     # else:
     #     bot.send_message(message.chat.id, 'Ничего не найдено ☹')
 
@@ -74,7 +76,7 @@ def show_type_goods(message):
 
 def check_item(message):
     obg = ControllerTypeGoods()
-    return  message in obg.select_items()
+    return [i for i in obg.select_items() if i.find(message)!= - 1]   
     
 
 def hello(message):
