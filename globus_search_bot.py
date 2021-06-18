@@ -3,6 +3,7 @@ import telebot
 from telebot import types
 from main import *
 from controllers.controller_type import ControllerTypeGoods
+from controllers.controller_categories import ControllerCategories
 conn = Con.connect()
 Con.m_cursor(conn)
 
@@ -55,14 +56,43 @@ def menu(message):
         show_map(message)
     elif (message_user == 'Здарова'):
         hello(message)
+    elif (message_user == "Категория"):
+        msg = bot.send_message(message.chat.id, 'Напиши название отдела')
+        bot.register_next_step_handler(msg, select_type)
     elif (check_item(message_user)):
         message.text = check_item(message_user)
         show_type_goods(message)
+    elif (check_item1(message_user)):
+        message.text = check_item1(message_user)
+        show_category_goods(message)
     #print(check_item(message))
     # else:
     #     bot.send_message(message.chat.id, 'Ничего не найдено ☹')
 
+ControllerCategories
 
+def select_type(message):
+    message_user = message.text
+    if check_item(message_user):
+        print('True')
+        msg = bot.send_message(message.chat.id, 'Отправьте документ и напишите название категории')
+        bot.register_next_step_handler(msg, add_category, message_user)
+    else:
+        print('false')
+
+def add_category(message, name_type):
+    if message.document != None:
+        if message.caption != None:
+            print(message.caption)
+            print(name_type)
+            path =photo_set_category(message)
+            obj = ControllerCategories(message.caption)
+            obj.add_category_item(path,name_type)
+            bot.send_message(message.chat.id, f'Категория с названием {message.caption} в отделение {name_type}\n - был добавлен в базу !')
+        else:
+            print('Нет подписи')
+    else:
+        print('Это не документ')
 def show_map(message):
     bot.send_photo(message.chat.id,
      photo=open('photos/map/map.jpg', 'rb'))
@@ -70,12 +100,29 @@ def show_map(message):
 
 def show_type_goods(message):
     obg = ControllerTypeGoods(message.text)
+    type = obg.show_type()
     bot.send_photo(message.chat.id,
-     photo=open(obg.show_item(), 'rb'))
+     photo=open(type.path, 'rb'))
+
+def show_category_goods(message):
+    obg = ControllerCategories(message.text)
+    сategory = obg.select_category()
+    obg1 = ControllerTypeGoods(сategory.name_type)
+    type = obg1.show_type()
+    str =f" Категория: <b>{сategory.name}</b>\n Отдел: <b>{сategory.name_type}</b>\n Крыло: <b>{type.side}</b>"
+    bot.send_photo(
+        message.chat.id, photo=open(сategory.path, 'rb'),
+        caption=str, parse_mode="html"
+        )
 
 def check_item(message):
     obg = ControllerTypeGoods()
-    return [i for i in obg.select_items() if i.find(message)!= - 1]   
+    return [i for i in obg.select_items() if i.find(message)!= - 1]
+
+def check_item1(message):
+    obg = ControllerCategories()
+    return [i for i in obg.select_items1() if i.find(message)!= - 1]
+    
     
 
 def hello(message):
@@ -91,16 +138,26 @@ def photo_set(message):
         downloaded_file = bot.download_file(file_info.file_path)
         with open("photos/"+path,'wb') as new_file:
             new_file.write(downloaded_file)
-        add(message, name_type, path)
+        msg = bot.send_message(message.chat.id, 'Какой крыло: ?')
+        bot.register_next_step_handler(msg,add,name_type, path)
 
 
+def photo_set_category(message):
+        raw = message.document.file_id
+        path = raw+".jpg"
+        file_info = bot.get_file(raw)
+        downloaded_file = bot.download_file(file_info.file_path)
+        with open("photos/category/"+path,'wb') as new_file:
+            new_file.write(downloaded_file)
+        return path
 
 
 
 
 def add(message,name_type, path):
     obg = ControllerTypeGoods(name_type)
-    obg.add_item(path)
+    obg.add_item(path, message.text)
+    print(message.text)
     bot.send_message(message.chat.id, f'Тип с названием {name_type} \n - был добавлен в базу !')
         
 
