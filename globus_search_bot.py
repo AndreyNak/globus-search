@@ -4,6 +4,8 @@ from telebot import types
 from main import *
 from controllers.controller_type import ControllerTypeGoods
 from controllers.controller_categories import ControllerCategories
+from errors import *
+import re
 conn = Con.connect()
 Con.m_cursor(conn)
 
@@ -26,12 +28,19 @@ def wellcome(message):
     bot.send_message(message.chat.id, """Здарова прогеры, я крутой бот ! Меня создал гений.\n
     Список команд: \n
     "Добавить" - Добавить элемен\n
-    "Удалить" - Удалить элемент\n
+    "Удалить" - Удалить тип товара\n
+    "Удалить К" - Удалить категорию товара\n
     "Карта" - Показать карту глобуса\n
     "Здарова" - бот здоровается с тобой\n
+    "Категория" - добавление категории\n
     "<Название товара>" - показывает на карте где находится\n
     "<Фото-документ><Название>" - Добавить элемен\n
     """)
+
+
+
+
+
 
 
 
@@ -46,7 +55,7 @@ def menu(message):
     elif (message_user == 'Удалить'):
         msg = bot.send_message(message.chat.id, 
         'Напишите название типа товара, который хотите удалить')
-        bot.register_next_step_handler(msg, delete)
+        bot.register_next_step_handler(msg, delete_type)
     elif (message_user == 'Изменить'):
         msg = bot.send_message(message.chat.id, 
         'Напишите название типа товара, который хотите изменить')
@@ -56,6 +65,10 @@ def menu(message):
         show_map(message)
     elif (message_user == 'Здарова'):
         hello(message)
+    elif (message_user == 'Удалить К'):
+        msg = bot.send_message(message.chat.id, 
+        'Напишите название категории товара, который хотите удалить')
+        bot.register_next_step_handler(msg, delete_category)
     elif (message_user == "Категория"):
         msg = bot.send_message(message.chat.id, 'Напиши название отдела')
         bot.register_next_step_handler(msg, select_type)
@@ -68,31 +81,19 @@ def menu(message):
     #print(check_item(message))
     # else:
     #     bot.send_message(message.chat.id, 'Ничего не найдено ☹')
-
-ControllerCategories
+    
 
 def select_type(message):
     message_user = message.text
     if check_item(message_user):
-        print('True')
         msg = bot.send_message(message.chat.id, 'Отправьте документ и напишите название категории')
         bot.register_next_step_handler(msg, add_category, message_user)
     else:
-        print('false')
+        bot.send_message(message.chat.id, not_found())
 
-def add_category(message, name_type):
-    if message.document != None:
-        if message.caption != None:
-            print(message.caption)
-            print(name_type)
-            path =photo_set_category(message)
-            obj = ControllerCategories(message.caption)
-            obj.add_category_item(path,name_type)
-            bot.send_message(message.chat.id, f'Категория с названием {message.caption} в отделение {name_type}\n - был добавлен в базу !')
-        else:
-            print('Нет подписи')
-    else:
-        print('Это не документ')
+
+
+
 def show_map(message):
     bot.send_photo(message.chat.id,
      photo=open('photos/map/map.jpg', 'rb'))
@@ -103,6 +104,35 @@ def show_type_goods(message):
     type = obg.show_type()
     bot.send_photo(message.chat.id,
      photo=open(type.path, 'rb'))
+
+
+def check_item(message):
+    obg = ControllerTypeGoods()
+    return [i for i in obg.select_items() if i.find(message)!= - 1]
+
+def check_item1(message):
+    obg = ControllerCategories()
+    return [i for i in obg.select_items1() if i.find(message)!= - 1]
+    
+@bot.message_handler(content_types=['document'])
+def add_set_category(message):
+        name = message.document.file_name
+        if(valid_regular(name)):
+            name_category, name_type  =  parse_name(name)
+            print(name_category, name_type)
+            path = photo_set_category(message)
+            obj = ControllerCategories(name_category)
+            obj.add_category_item(path,name_type)
+
+def parse_name(name):
+    foudn = r'[А-Я]{1}[а-я]+\s[а-я\s]+|[А-Я]{1}[а-я]+'
+    result =  re.findall(foudn, name)
+    return  result[0],result[1]
+
+def valid_regular(name):
+    check = r'[А-Я]{1}[а-я\s]+_[А-Я]{1}[а-я\s]+.png'
+    result =  re.findall(check, name)
+    return len(result) > 0
 
 def show_category_goods(message):
     obg = ControllerCategories(message.text)
@@ -115,14 +145,9 @@ def show_category_goods(message):
         caption=str, parse_mode="html"
         )
 
-def check_item(message):
-    obg = ControllerTypeGoods()
-    return [i for i in obg.select_items() if i.find(message)!= - 1]
-
-def check_item1(message):
-    obg = ControllerCategories()
-    return [i for i in obg.select_items1() if i.find(message)!= - 1]
-    
+def photo_set_category(message):
+        return ControllerCategories().load_photo(message,bot)
+  
     
 
 def hello(message):
@@ -131,26 +156,11 @@ def hello(message):
 @bot.message_handler(content_types=['document'])
 def photo_set(message):
     if (message.caption != None):
-        name_type = message.caption
-        raw = message.document.file_id
-        path = raw+".jpg"
-        file_info = bot.get_file(raw)
-        downloaded_file = bot.download_file(file_info.file_path)
-        with open("photos/"+path,'wb') as new_file:
-            new_file.write(downloaded_file)
+        name_type, path = ControllerTypeGoods().load_photo(message,bot)
         msg = bot.send_message(message.chat.id, 'Какой крыло: ?')
         bot.register_next_step_handler(msg,add,name_type, path)
-
-
-def photo_set_category(message):
-        raw = message.document.file_id
-        path = raw+".jpg"
-        file_info = bot.get_file(raw)
-        downloaded_file = bot.download_file(file_info.file_path)
-        with open("photos/category/"+path,'wb') as new_file:
-            new_file.write(downloaded_file)
-        return path
-
+    else:
+        bot.send_message(message.chat.id, no_caption())
 
 
 
@@ -159,20 +169,29 @@ def add(message,name_type, path):
     obg.add_item(path, message.text)
     print(message.text)
     bot.send_message(message.chat.id, f'Тип с названием {name_type} \n - был добавлен в базу !')
-        
 
-def delete(message):
+
+def delete_category(message):
     name_type = message.text.title()
-    if (len(name_type)) < 1:
-        msg = bot.send_message(message.chat.id, 'Ну напиши ты что нибудь !')
-        bot.register_next_step_handler(msg, delete)
-        return
-    elif name_type == 'Выход':
+    if name_type == 'Выход':
         bot.send_message(message.chat.id, 'Вы вышлив в меню')
         return
+    elif not check_item1(name_type):
+        msg = bot.send_message(message.chat.id, not_found())
+        bot.register_next_step_handler(msg, delete_category)
+        return
+    obg = ControllerCategories(name_type)
+    obg.delete_item()
+    bot.send_message(message.chat.id,'Экземпляр был успешно удален !')
+
+def delete_type(message):
+    name_type = message.text.title()
+    if name_type == 'Выход':
+        bot.send_message(message.chat.id, 'Вы вышли в меню')
+        return
     elif not check_item(name_type):
-        msg = bot.send_message(message.chat.id, 'Товар не найден !')
-        bot.register_next_step_handler(msg, delete)
+        msg = bot.send_message(message.chat.id, not_found())
+        bot.register_next_step_handler(msg, delete_type)
         return
     obg = ControllerTypeGoods(name_type)
     obg.delete_item()
@@ -181,15 +200,29 @@ def delete(message):
 
 def update(message):
     name_type = message.text
-    if (len(name_type)) < 1:
-        bot.send_message(message, 'Ну напиши ты что нибудь !')
-        return
+    obg = ControllerTypeGoods(name_type)
+    obg.delete_item()
+    msg = bot.send_message(message.chat.id, 
+        'Имя нового товара')
+    bot.register_next_step_handler(msg, add)
+
+
+
+
+def add_category(message, name_type):
+    if message.document != None:
+        if message.caption != None:
+            print(message.caption)
+            print(name_type)
+            path = photo_set_category(message)
+            obj = ControllerCategories(message.caption)
+            obj.add_category_item(path,name_type)
+            bot.send_message(message.chat.id, f'Категория с названием {message.caption} в отделение {name_type}\n - был добавлен в базу !')
+        else:
+            bot.send_message(message.chat.id, no_caption())
     else:
-        obg = ControllerTypeGoods(name_type)
-        obg.delete_item()
-        msg = bot.send_message(message.chat.id, 
-          'Имя нового товара')
-        bot.register_next_step_handler(msg, add)
+        bot.send_message(message.chat.id, not_document())
+
 
 
 
@@ -203,8 +236,6 @@ def update(message):
 
 
 
-    #bot.send_message(message.chat.id, f'Здарова {message.from_user.first_name}')
-
 # @bot.message_handler(content_types=['Функции'])
 # def functions(message):
 #     print('Метод functions !')
@@ -216,10 +247,6 @@ def update(message):
 #     msg = bot.send_message(message.chat.id, 'Добавить, Удалить запись. ',
 #      reply_markup=mk)
 #     bot.register_next_step_handler(msg, crud)
-
-
-
-
 
 # bot.enable_save_next_step_handlers(delay=2)
 # bot.load_next_step_handlers()

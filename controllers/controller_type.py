@@ -4,6 +4,7 @@ from telebot.types import ReplyKeyboardMarkup
 from db.models.base_model import Types,TypCategoryes
 import peewee
 import os
+import telebot
 
 
 class ControllerTypeGoods:
@@ -33,6 +34,15 @@ class ControllerTypeGoods:
             os.remove(f"{artist.path}")
             artist.delete_instance()
 
+    def load_photo(self, message, bot):
+        name_type = message.caption
+        raw = message.document.file_id
+        path = raw+".jpg"
+        file_info = bot.get_file(raw)
+        downloaded_file = bot.download_file(file_info.file_path)
+        with open("photos/"+path,'wb') as new_file:
+            new_file.write(downloaded_file)
+        return name_type, path
 #     def update_item(self):
 #         artistId = Types.get(Types.type == self.name_type)
 #         new_word = input('На какое слово хочешь поменять ?')
