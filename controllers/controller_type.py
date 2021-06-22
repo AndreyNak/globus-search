@@ -1,4 +1,5 @@
 import re
+from typing import Type
 
 from telebot.types import ReplyKeyboardMarkup
 from db.models.base_model import Types,TypCategoryes
@@ -17,7 +18,13 @@ class ControllerTypeGoods:
 
     def show_type(self):
         return Types.get(Types.type == self.name_item)
-       
+    
+
+    def select_type(self):
+        try:
+            return Types.get(Types.type == self.name_item)
+        except Exception:
+            return False
 
     def add_item(self,path, side):
         path_photo = f"photos/{path}"
@@ -37,12 +44,13 @@ class ControllerTypeGoods:
     def load_photo(self, message, bot):
         name_type = message.caption
         raw = message.document.file_id
-        path = raw+".jpg"
+        path = raw+".png"
         file_info = bot.get_file(raw)
         downloaded_file = bot.download_file(file_info.file_path)
         with open("photos/"+path,'wb') as new_file:
             new_file.write(downloaded_file)
         return name_type, path
+
 #     def update_item(self):
 #         artistId = Types.get(Types.type == self.name_type)
 #         new_word = input('На какое слово хочешь поменять ?')
