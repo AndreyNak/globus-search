@@ -67,20 +67,62 @@ def update(message):
         bot.send_message(message.chat.id, '{!В разработке!}')
 
 
-@bot.message_handler(content_types=['Здарова'])
-def hello(message):
-    bot.send_message(message.chat.id, f'Здарова {message.from_user.first_name}')
+def update(message):
+    name_type = message.text
+    ogb = ControllerTypeGoods(name_type)
+    
+    firstTime = []
+    
+    firstTime.append(name_type)
+    
 
-@bot.message_handler(commands=['show'])
-def show(message):
-    obj = ControllerTypeGoods()
-    obj.show_items()
-    bot.send_message(message.chat.id, )
+    if (len(firstTime) > 2):
+    
+    
+     print(firstTime)
+     firstTime.append(name_type) #добавляет приходящее имя в массив
+     artistId = Types.get(Types.type == firstTime[0])
+     new_word = firstTime[1]
+     artist = Types(type=new_word)
+     artist.id = artistId.id
+     artist.save()
+     bot.send_message(message.chat.id, f'Тип с названием {name_type} \n - не существует !')
 
-@bot.message_handler(content_types=['text'])
-def test(message):
-    if 'тест222' in message.text.lower():
-        bot.send_message(message.chat.id, 'Тест')
+     return
+     
+   # elif (firstTime == []): #если пустой массив
+  #   firstTime.append(name_type) #добавляет приходящее имя в массив
+     
+
+    
+#    if (firstTime != []): # если не пустой массив
+   # firstTimeIn = firstTime.index(name_type) #получает индекс
+#    if (type(firstTimeIn) != int): #если тип индекса = не инт
+#          input("no")
+#        
+#    try:
+#
+#        artist = Types.get(Types.type == name_type )
+#    except:
+#        
+#        bot.send_message(message.chat.id, f'Тип с названием {name_type} \n - не существует !')
+#        return
+  #  try:
+#
+ #      artistID = Types.get(Types.type == name_type )
+  #  except Exception:
+        
+  #      artist = Types(type=name_type)
+  #      artist.save()
+ #       bot.send_message(message.chat.id, f'Тип с названием {name_type} \n - был добавлен в базу !')
+        
+  #  else:
+       # delete = Types.get(Types.type == name_type )
+       # delete.delete_instance()
+  #  ogb.update_search_item(firstTime[1], firstTime[0])
+    msg = bot.send_message(message.chat.id, 
+         'Имя нового товара')
+    bot.register_next_step_handler(msg, update)
 
 # bot.enable_save_next_step_handlers(delay=2)
 # bot.load_next_step_handlers()
