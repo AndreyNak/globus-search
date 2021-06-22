@@ -21,7 +21,7 @@ class ControllerCategories:
 
 
     def add_category_item(self,path,type):
-        path_photo = f"photos/test/{path}"
+        path_photo = f"photos/category/{path}"
         article = TypCategoryes(name=self.name_item,
                                 path=path_photo,
                                 name_type=type)
@@ -34,7 +34,7 @@ class ControllerCategories:
         path = raw+".jpg"
         file_info = bot.get_file(raw)
         downloaded_file = bot.download_file(file_info.file_path)
-        with open("photos/test/"+path,'wb') as new_file:
+        with open("photos/category/"+path,'wb') as new_file:
             new_file.write(downloaded_file)
         return path
 
