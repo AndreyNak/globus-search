@@ -5,8 +5,10 @@ from main import *
 from controllers.controller_type import ControllerTypeGoods
 conn = Con.connect()
 Con.m_cursor(conn)
+from db.models.base_model import *
 
 bot = telebot.TeleBot(config.TOKEN)
+
 
 # @bot.message_handler(commands=['start'])
 # def wellcome(message):
@@ -120,47 +122,32 @@ def delete(message):
     bot.send_message(message.chat.id,'Экземпляр был успешно удален !')
 
 
+
+firstTime = []
+
 def update(message):
     name_type = message.text
-    if (len(name_type)) < 1:
-        bot.send_message(message, 'Ну напиши ты что нибудь !')
+    firstTime.append(name_type)
+    try:
+       artistId = Types.get(Types.type == firstTime[0])
+    except:
+        firstTime.pop()
+        bot.send_message(message.chat.id, f'Тип с названием {name_type} \n - не существует !')
         return
+    try: 
+       ("key" == firstTime[1])
+    except Exception:
+     firstTime.append("key")
+     bot.send_message(message.chat.id, 
+         'Имя нового товара')
+     bot.register_next_step_handler(message, update)
     else:
-        obg = ControllerTypeGoods(name_type)
-        obg.delete_item()
-        msg = bot.send_message(message.chat.id, 
-          'Имя нового товара')
-        bot.register_next_step_handler(msg, add)
-
-
-
-# def menu(message):
-#     print(message.text)
-#     msg = bot.send_message(message.chat.id, 'текст')
-#     if message.text == 'Функции':
-#         bot.register_next_step_handler(msg, functions)
-#     elif message.text == 'Карта':
-#         bot.register_next_step_handler(msg, show_map)
-
-
-
-    #bot.send_message(message.chat.id, f'Здарова {message.from_user.first_name}')
-
-# @bot.message_handler(content_types=['Функции'])
-# def functions(message):
-#     print('Метод functions !')
-#     mk = types.ReplyKeyboardMarkup(resize_keyboard = True)
-#     mk.add(
-#         types.KeyboardButton("Добавить"),
-#         types.KeyboardButton("Удалить")
-#         )
-#     msg = bot.send_message(message.chat.id, 'Добавить, Удалить запись. ',
-#      reply_markup=mk)
-#     bot.register_next_step_handler(msg, crud)
-
-
-
-
+        firstTime.clear()
+        artist = Types(type=name_type)
+        artist.id = artistId.id
+        artist.save()
+        bot.send_message(message.chat.id, f'Тип с названием {name_type} \n - был добавлен в базу !')
+     
 
 # bot.enable_save_next_step_handlers(delay=2)
 # bot.load_next_step_handlers()
