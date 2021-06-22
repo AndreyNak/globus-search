@@ -54,7 +54,7 @@ def menu(message):
         bot.register_next_step_handler(msg, photo_set)
     elif (message_user == 'Удалить'):
         msg = bot.send_message(message.chat.id, 
-        'Напишите название типа товара, который хотите удалить')
+        'Напишите полностью название типа товара, который хотите удалить')
         bot.register_next_step_handler(msg, delete_type)
     elif (message_user == 'Изменить'):
         msg = bot.send_message(message.chat.id, 
@@ -67,17 +67,19 @@ def menu(message):
         hello(message)
     elif (message_user == 'Удалить К'):
         msg = bot.send_message(message.chat.id, 
-        'Напишите название категории товара, который хотите удалить')
+        'Напишите полностью название категории товара, который хотите удалить')
         bot.register_next_step_handler(msg, delete_category)
     elif (message_user == "Категория"):
         msg = bot.send_message(message.chat.id, 'Напиши название отдела')
         bot.register_next_step_handler(msg, select_type)
-    elif (check_item(message_user)):
-        message.text = check_item(message_user)
-        show_type_goods(message)
     elif (check_item1(message_user)):
+        bot.send_message(message.chat.id, 'Показываю...')
         message.text = check_item1(message_user)
         show_category_goods(message)
+    elif (check_item(message_user)):
+        bot.send_message(message.chat.id, 'Показываю...')
+        message.text = check_item(message_user)
+        show_type_goods(message)
     #print(check_item(message))
     # else:
     #     bot.send_message(message.chat.id, 'Ничего не найдено ☹')
@@ -117,20 +119,24 @@ def check_item1(message):
 @bot.message_handler(content_types=['document'])
 def add_set_category(message):
         name = message.document.file_name
+        print(name)
         if(valid_regular(name)):
+            print('Прошло валидацию')
+            name = name.replace('+', " ")
             name_category, name_type  =  parse_name(name)
             print(name_category, name_type)
             path = photo_set_category(message)
             obj = ControllerCategories(name_category)
             obj.add_category_item(path,name_type)
-
+        else:
+            print(f'{name} Не прошел валидацию')
 def parse_name(name):
-    foudn = r'[А-Я]{1}[а-я]+\s[а-я\s]+|[А-Я]{1}[а-я]+'
+    foudn = r'[А-Я]{1}[а-я0-9\s]+-[а-я-]+|[А-Я]{1}[а-я0-9\s]+'
     result =  re.findall(foudn, name)
     return  result[0],result[1]
 
 def valid_regular(name):
-    check = r'[А-Я]{1}[а-я\s]+_[А-Я]{1}[а-я\s]+.png'
+    check = r'[А-Я]{1}[а-я0-9+]+_[А-Я]{1}[а-я+]+.png'
     result =  re.findall(check, name)
     return len(result) > 0
 
@@ -157,7 +163,7 @@ def hello(message):
 def photo_set(message):
     if (message.caption != None):
         name_type, path = ControllerTypeGoods().load_photo(message,bot)
-        msg = bot.send_message(message.chat.id, 'Какой крыло: ?')
+        msg = bot.send_message(message.chat.id, 'Какое крыло: ?')
         bot.register_next_step_handler(msg,add,name_type, path)
     else:
         bot.send_message(message.chat.id, no_caption())
@@ -171,18 +177,7 @@ def add(message,name_type, path):
     bot.send_message(message.chat.id, f'Тип с названием {name_type} \n - был добавлен в базу !')
 
 
-def delete_category(message):
-    name_type = message.text.title()
-    if name_type == 'Выход':
-        bot.send_message(message.chat.id, 'Вы вышлив в меню')
-        return
-    elif not check_item1(name_type):
-        msg = bot.send_message(message.chat.id, not_found())
-        bot.register_next_step_handler(msg, delete_category)
-        return
-    obg = ControllerCategories(name_type)
-    obg.delete_item()
-    bot.send_message(message.chat.id,'Экземпляр был успешно удален !')
+
 
 def delete_type(message):
     name_type = message.text.title()
@@ -223,7 +218,18 @@ def add_category(message, name_type):
     else:
         bot.send_message(message.chat.id, not_document())
 
-
+def delete_category(message):
+    name_type = message.text
+    if name_type == 'Выход':
+        bot.send_message(message.chat.id, 'Вы вышлив в меню')
+        return
+    elif not check_item1(name_type):
+        msg = bot.send_message(message.chat.id, not_found())
+        bot.register_next_step_handler(msg, delete_category)
+        return
+    obg = ControllerCategories(name_type)
+    obg.delete_item()
+    bot.send_message(message.chat.id,'Экземпляр был успешно удален !')
 
 
 # def menu(message):
