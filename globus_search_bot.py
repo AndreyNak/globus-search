@@ -55,22 +55,31 @@ def delete(message):
         bot.send_message(message.chat.id, log)   
 
 
-
+firstTime = []
 
 def update(message):
     name_type = message.text
+    firstTime.append(name_type)
     try:
-       artist = Types.get(Types.type == name_type )
+       artistId = Types.get(Types.type == firstTime[0])
+    except:
+        firstTime.pop()
+        bot.send_message(message.chat.id, f'Тип с названием {name_type} \n - не существует !')
+        return
+    try: 
+       ("key" == firstTime[1])
     except Exception:
-        artist = Types(type=name_type)
-        artist.save()
-        bot.send_message(message.chat.id, f'Тип с названием {name_type} \n - был добавлен в базу !')
-    else:
-     delete = Types.get(Types.type == name_type )
-     delete.delete_instance()
+     firstTime.append("key")
      bot.send_message(message.chat.id, 
          'Имя нового товара')
      bot.register_next_step_handler(message, update)
+    else:
+        firstTime.clear()
+        artist = Types(type=name_type)
+        artist.id = artistId.id
+        artist.save()
+        bot.send_message(message.chat.id, f'Тип с названием {name_type} \n - был добавлен в базу !')
+     
 
 # bot.enable_save_next_step_handlers(delay=2)
 # bot.load_next_step_handlers()
