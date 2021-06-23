@@ -35,13 +35,13 @@ class ControllerCategories:
     def add_category_item(self,path,type):
         path_photo = f"photos/category/{path}"
         if (self.select_category()):
-            print(f"{self.name_item} УЖЕ ЕСТЬ В БАЗЕ !")
+            print(f"[ {self.name_item} : уже есть в базе ! ]")
         else:
             article = TypCategoryes(name=self.name_item,
                                     path=path_photo,
                                     name_type=type)
             article.save()
-            print('Элемент Добавлен !')
+            print('\nЭлемент Добавлен !\n')
 
 
     def load_photo(self,message,bot):
