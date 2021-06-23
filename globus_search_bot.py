@@ -48,7 +48,6 @@ def first_char_upper(str):
 
 @bot.message_handler(content_types=['text'])
 def menu(message):
-    print(message.from_user.id)
     message_user = first_char_upper(message.text.lower())
     if message.from_user.id == 776211647:
         if (message_user == 'Добавить'):
@@ -113,7 +112,7 @@ def new_check_item(message):
     
 @bot.message_handler(content_types=['document'])
 def add_set_category(message):
-    if message.from_user.id != 776211647:
+    if message.from_user.id == 776211647:
         name = message.document.file_name
         print(name)
         if(valid_regular(name)):
@@ -125,7 +124,7 @@ def add_set_category(message):
                 obj = ControllerCategories(name_category)
                 obj.add_category_item(path,name_type)
             else:
-                print(f'{name_type} - Данного отдела нет.')
+                print(f'{name_type} - Данного отдела НЕТ.')
         else:
             print(f'{name} Не прошел валидацию')
 
