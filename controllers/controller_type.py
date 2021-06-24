@@ -2,7 +2,7 @@ import re
 from typing import Type
 
 from telebot.types import ReplyKeyboardMarkup
-from db.models.base_model import Types,TypCategoryes
+from db.models.types_model import Types
 import peewee
 import os
 import telebot
@@ -12,14 +12,6 @@ class ControllerTypeGoods:
     def __init__(self, name_type=None):
         self.name_item = name_type
     
-    def select_items(self):
-        cur_query = Types.select()
-        return [i['type']for i in cur_query.dicts().execute()]
-
-    def show_type(self):
-        return Types.get(Types.type == self.name_item)
-    
-
     def select_type(self):
         try:
             return Types.get(Types.type == self.name_item)
@@ -50,10 +42,3 @@ class ControllerTypeGoods:
         with open("photos/"+path,'wb') as new_file:
             new_file.write(downloaded_file)
         return name_type, path
-
-#     def update_item(self):
-#         artistId = Types.get(Types.type == self.name_type)
-#         new_word = input('На какое слово хочешь поменять ?')
-#         artist = Types(type=new_word)
-#         artist.id = artistId.id
-#         artist.save()
