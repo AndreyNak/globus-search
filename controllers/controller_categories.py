@@ -1,6 +1,6 @@
 import re
 from telebot.types import ReplyKeyboardMarkup
-from db.models.base_model import Types,TypCategoryes
+from db.models.categoryes_model import TypCategoryes
 import peewee
 import os
 
@@ -23,13 +23,7 @@ class ControllerCategories:
             return TypCategoryes.get(TypCategoryes.name == self.name_item)
         except Exception:
             return False
-       
-
-
-    def select_select_category(self):
-        return TypCategoryes.get(TypCategoryes.name == self.name_item)
-
-        
+         
 
 
     def add_category_item(self,path,type):
