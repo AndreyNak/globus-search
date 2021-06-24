@@ -1,3 +1,4 @@
+import time
 import config
 import telebot
 from telebot import types
@@ -23,20 +24,44 @@ bot = telebot.TeleBot(config.TOKEN)
 #     bot.register_next_step_handler(msg, menu)
 
 
+# @bot.message_handler(commands=['start','help'])
+# def dev_wellcome(message):
+    # bot.send_message(message.chat.id, """Здарова прогеры, я крутой бот ! Меня создал гений.\n
+    # Список команд: \n
+    # "Добавить" - Добавить элемен\n
+    # "Удалить" - Удалить тип товара\n
+    # "Удалить К" - Удалить категорию товара\n
+    # "Карта" - Показать карту глобуса\n
+    # "Здарова" - бот здоровается с тобой\n
+    # "Категория" - добавление категории\n
+    # "<Название товара>" - показывает на карте где находится\n
+    # "<Фото-документ><Название>" - Добавить элемен\n
+    # """)
+
+
 @bot.message_handler(commands=['start','help'])
 def wellcome(message):
-    bot.send_message(message.chat.id, """Здарова прогеры, я крутой бот ! Меня создал гений.\n
-    Список команд: \n
-    "Добавить" - Добавить элемен\n
-    "Удалить" - Удалить тип товара\n
-    "Удалить К" - Удалить категорию товара\n
-    "Карта" - Показать карту глобуса\n
-    "Здарова" - бот здоровается с тобой\n
-    "Категория" - добавление категории\n
-    "<Название товара>" - показывает на карте где находится\n
-    "<Фото-документ><Название>" - Добавить элемен\n
-    """)
-
+    if message.from_user.id == 776211647:
+        rmk = types.ReplyKeyboardMarkup(resize_keyboard = True)
+        rmk.add(types.KeyboardButton("Карта 🗺"))
+        bot.send_message(message.chat.id,"""Привет ! Я поисковой бот.\n
+        Показываю тебе где находятся товары глобуса, которые ты напишешь мне.\n
+        Напиши товар который ты хочешь увидеть.\n
+        Например - Молоко.\n
+        Используй кнопку или напиши Карта, что бы посмотреть в любой момент карту глобуса.
+        """,reply_markup=rmk)
+    else:
+        bot.send_message(message.chat.id, """Здарова прогеры, я крутой бот ! Меня создал гений.\n
+        Список команд: \n
+        "Добавить" - Добавить элемен\n
+        "Удалить" - Удалить тип товара\n
+        "Удалить К" - Удалить категорию товара\n
+        "Карта" - Показать карту глобуса\n
+        "Здарова" - бот здоровается с тобой\n
+        "Категория" - добавление категории\n
+        "<Название товара>" - показывает на карте где находится\n
+        "<Фото-документ><Название>" - Добавить элемен\n
+        """)
 
 
 
@@ -44,8 +69,9 @@ def wellcome(message):
 
 @bot.message_handler(content_types=['text'])
 def menu(message):
+    log(message)
     message_user = first_char_upper(message.text.lower())
-    if (message_user == 'Карта'):
+    if (message_user == 'Карта 🗺' or message_user == 'Карта'):
         print(message_user)
         bot.send_message(message.chat.id, 'Карта глобуса')
         show_map(message)
@@ -82,9 +108,9 @@ def menu(message):
             msg = bot.send_message(message.chat.id, 'Напиши название отдела')
             bot.register_next_step_handler(msg, select_type)
         else:
-            bot.send_message(message.chat.id, show_what_have(message_user))
+            bot.send_message(message.chat.id, search_help(message_user))
     else:
-        bot.send_message(message.chat.id, show_what_have(message_user))
+        bot.send_message(message.chat.id, search_help(message_user))
         
 
 
@@ -99,7 +125,7 @@ def menu(message):
 
 
 
-def show_what_have(message):
+def search_help(message):
     str = "Ничего не найдено ☹"
     word = message[:-2]
     obg = ControllerCategories()
@@ -110,8 +136,10 @@ def show_what_have(message):
             elems = "Может вы имели ввиду: "+', '.join(smart_search)    
             return f"{str}\n {elems}" 
     elif len(message) < 3:
-        elems = "Может вы имели ввиду: "+', '.join(items)    
-        return f"{str}\n {elems}" 
+        items = [i for i in obg.select_items1() if i.find(message)!= - 1]
+        if(len(items) > 0):
+            elems = "Может вы имели ввиду: "+', '.join(items)    
+            return f"{str}\n {elems}" 
     return str
  
 
@@ -266,29 +294,22 @@ def show_map(message):
 def hello(message):
     bot.send_message(message.chat.id, f'Здарова {message.from_user.first_name}')
 
-# def menu(message):
-#     print(message.text)
-#     msg = bot.send_message(message.chat.id, 'текст')
-#     if message.text == 'Функции':
-#         bot.register_next_step_handler(msg, functions)
-#     elif message.text == 'Карта':
-#         bot.register_next_step_handler(msg, show_map)
+def get_time():
+    seconds = time.time()
+    return time.ctime(seconds)
+
+def log(message):
+    if (message.from_user.id != 776211647):
+        file = open("logs.txt", "a")
+        file.write(f"""
+        id:{message.from_user.id}\n
+        name:{message.from_user.first_name}\n
+        username: {message.from_user.username}\n
+        Text  : {message.text}\n
+        Time: {get_time()}
+        ====================================================================\n""")
+        file.close()
 
 
-
-# @bot.message_handler(content_types=['Функции'])
-# def functions(message):
-#     print('Метод functions !')
-#     mk = types.ReplyKeyboardMarkup(resize_keyboard = True)
-#     mk.add(
-#         types.KeyboardButton("Добавить"),
-#         types.KeyboardButton("Удалить")
-#         )
-#     msg = bot.send_message(message.chat.id, 'Добавить, Удалить запись. ',
-#      reply_markup=mk)
-#     bot.register_next_step_handler(msg, crud)
-
-# bot.enable_save_next_step_handlers(delay=2)
-# bot.load_next_step_handlers()
 bot.polling()
 conn.close()
