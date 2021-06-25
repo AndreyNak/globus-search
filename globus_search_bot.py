@@ -1,3 +1,4 @@
+from os import access
 import time
 import config
 import telebot
@@ -12,46 +13,12 @@ Con.m_cursor(conn)
 
 bot = telebot.TeleBot(config.TOKEN)
 
-# @bot.message_handler(commands=['start'])
-# def wellcome(message):
-#     rmk = types.ReplyKeyboardMarkup(resize_keyboard = True)
-#     rmk.add(
-#         types.KeyboardButton("Функции"),
-#         types.KeyboardButton("Карта")
-#         )
-#     msg = bot.send_message(message.chat.id, 'Здарова прогеры, я крутой бот ! \nМеня создал гений.',
-#      reply_markup=rmk)
-#     bot.register_next_step_handler(msg, menu)
-
-
-# @bot.message_handler(commands=['start','help'])
-# def dev_wellcome(message):
-    # bot.send_message(message.chat.id, """Здарова прогеры, я крутой бот ! Меня создал гений.\n
-    # Список команд: \n
-    # "Добавить" - Добавить элемен\n
-    # "Удалить" - Удалить тип товара\n
-    # "Удалить К" - Удалить категорию товара\n
-    # "Карта" - Показать карту глобуса\n
-    # "Здарова" - бот здоровается с тобой\n
-    # "Категория" - добавление категории\n
-    # "<Название товара>" - показывает на карте где находится\n
-    # "<Фото-документ><Название>" - Добавить элемен\n
-    # """)
-
+access_list = [776211647, 130783085, 739889656]
 
 @bot.message_handler(commands=['start','help'])
 def wellcome(message):
-    if message.from_user.id == 776211647:
-        rmk = types.ReplyKeyboardMarkup(resize_keyboard = True)
-        rmk.add(types.KeyboardButton("Карта 🗺"))
-        bot.send_message(message.chat.id,"""Привет ! Я поисковой бот.\n
-        Показываю тебе где находятся товары глобуса, которые ты напишешь мне.\n
-        Напиши товар который ты хочешь увидеть.\n
-        Например - Молоко.\n
-        Используй кнопку или напиши Карта, что бы посмотреть в любой момент карту глобуса.
-        """,reply_markup=rmk)
-    else:
-        bot.send_message(message.chat.id, """Здарова прогеры, я крутой бот ! Меня создал гений.\n
+    if message.from_user.id in access_list:
+          bot.send_message(message.chat.id, """Здарова прогеры, я крутой бот ! Меня создал гений.\n
         Список команд: \n
         "Добавить" - Добавить элемен\n
         "Удалить" - Удалить тип товара\n
@@ -62,16 +29,24 @@ def wellcome(message):
         "<Название товара>" - показывает на карте где находится\n
         "<Фото-документ><Название>" - Добавить элемен\n
         """)
-
+    else:
+        rmk = types.ReplyKeyboardMarkup(resize_keyboard = True)
+        rmk.add(types.KeyboardButton("Карта"))
+        bot.send_message(message.chat.id,"""Привет ! Я поисковой бот.\n
+        Показываю тебе где находятся товары глобуса, которые ты напишешь мне.\n
+        Напиши товар который ты хочешь увидеть.\n
+        Например - Молоко.\n
+        Используй кнопку или напиши Карта, что бы посмотреть в любой момент карту глобуса.
+        """,reply_markup=rmk)
 
 
 
 
 @bot.message_handler(content_types=['text'])
 def menu(message):
-    log(message)
+    log(message, 'logs')
     message_user = first_char_upper(message.text.lower())
-    if (message_user == 'Карта 🗺' or message_user == 'Карта'):
+    if (message_user == 'Карта'):
         print(message_user)
         bot.send_message(message.chat.id, 'Карта глобуса')
         show_map(message)
@@ -87,7 +62,7 @@ def menu(message):
         show_type_goods(message)
     elif (message_user == 'Здарова'):
             hello(message)
-    elif message.from_user.id == 776211647:
+    elif message.from_user.id in access_list:
         if (message_user == 'Добавить'):
             msg = bot.send_message(message.chat.id, 
             'Отправьте фото документом и подпишите, что бы добавить элемент')
@@ -107,9 +82,10 @@ def menu(message):
         elif (message_user == "Категория"):
             msg = bot.send_message(message.chat.id, 'Напиши название отдела')
             bot.register_next_step_handler(msg, select_type)
-        else:
-            bot.send_message(message.chat.id, search_help(message_user))
+    #     else:
+    #         bot.send_message(message.chat.id, search_help(message_user))
     else:
+        log(message, 'logs_not_found')
         bot.send_message(message.chat.id, search_help(message_user))
         
 
@@ -139,7 +115,7 @@ def search_help(message):
         items = [i for i in obg.select_items1() if i.find(message)!= - 1]
         if(len(items) > 0):
             elems = "Может вы имели ввиду: "+', '.join(items)    
-            return f"{str}\n {elems}" 
+            return f"{str}\n {elems}"            
     return str
  
 
@@ -154,7 +130,7 @@ def check_category(message):
 
 @bot.message_handler(content_types=['document'])
 def add_set_category(message):
-    if message.from_user.id == 776211647:
+    if message.from_user.id in access_list:
         name = message.document.file_name
         print(name)
         if(valid_regular(name)):
@@ -298,18 +274,20 @@ def get_time():
     seconds = time.time()
     return time.ctime(seconds)
 
-def log(message):
-    if (message.from_user.id != 776211647):
-        file = open("logs.txt", "a")
-        file.write(f"""
-        id:{message.from_user.id}\n
-        name:{message.from_user.first_name}\n
-        username: {message.from_user.username}\n
-        Text  : {message.text}\n
-        Time: {get_time()}
-        ====================================================================\n""")
-        file.close()
-
+def log(message,file_name):
+    if (message.from_user.id not in access_list):
+        try:
+            file = open(f"logs/{file_name}.txt", "a")
+            file.write(f"""
+            id:{message.from_user.id}\n
+            name:{message.from_user.first_name}\n
+            username: {message.from_user.username}\n
+            Text  : {message.text}\n
+            Time: {get_time()}
+            ====================================================================\n""")
+            file.close()
+        except UnicodeEncodeError:
+            return
 
 bot.polling()
 conn.close()
