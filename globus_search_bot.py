@@ -1,4 +1,5 @@
 from os import access
+from datetime import datetime
 import time
 import config
 import telebot
@@ -82,8 +83,8 @@ def menu(message):
         elif (message_user == "Категория"):
             msg = bot.send_message(message.chat.id, 'Напиши название отдела')
             bot.register_next_step_handler(msg, select_type)
-    #     else:
-    #         bot.send_message(message.chat.id, search_help(message_user))
+        else:
+            bot.send_message(message.chat.id, search_help(message_user))
     else:
         log(message, 'logs_not_found')
         bot.send_message(message.chat.id, search_help(message_user))
@@ -270,9 +271,9 @@ def show_map(message):
 def hello(message):
     bot.send_message(message.chat.id, f'Здарова {message.from_user.first_name}')
 
-def get_time():
-    seconds = time.time()
-    return time.ctime(seconds)
+def get_time(message):
+    return datetime.utcfromtimestamp(int(message.date)).strftime('%Y-%m-%d %H:%M:%S')
+
 
 def log(message,file_name):
     if (message.from_user.id not in access_list):
@@ -283,7 +284,7 @@ def log(message,file_name):
             name:{message.from_user.first_name}\n
             username: {message.from_user.username}\n
             Text  : {message.text}\n
-            Time: {get_time()}
+            Time: {get_time(message)}
             ====================================================================\n""")
             file.close()
         except UnicodeEncodeError:
