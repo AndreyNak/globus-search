@@ -8,6 +8,7 @@ from controllers.controller_type import ControllerTypeGoods
 from controllers.controller_categories import ControllerCategories
 from errors import *
 import re
+from pyaspeller import YandexSpeller
 conn = Con.connect()
 Con.m_cursor(conn)
 
@@ -43,9 +44,11 @@ def wellcome(message):
 
 
 @bot.message_handler(content_types=['text'])
+
 def menu(message):
     log(message, 'logs')
     message_user = first_char_upper(message.text.lower())
+    message_user = speller_filter(message_user)
     if (message_user == 'Карта'):
         print(message_user)
         bot.send_message(message.chat.id, 'Карта глобуса')
@@ -83,11 +86,12 @@ def menu(message):
             msg = bot.send_message(message.chat.id, 'Напиши название отдела')
             bot.register_next_step_handler(msg, select_type)
         else:
-            bot.send_message(message.chat.id, search_help(message_user))
+            if(message.chat.id != -1001306888081):
+                bot.send_message(message.chat.id, search_help(message_user))
     else:
-        log(message, 'logs_not_found')
-        bot.send_message(message.chat.id, search_help(message_user))
-        
+        if(message.chat.id != -1001306888081):
+            log(message, 'logs_not_found')
+            bot.send_message(message.chat.id, search_help(message_user))
 
 
 
@@ -100,14 +104,20 @@ def menu(message):
 #     return [i for i in obg.select_items1() if i.find(message)!= - 1]
 
 
+def speller_filter(message):
+    speller = YandexSpeller()
+    fixed = speller.spelled(message)
+    if (message != fixed):
+        return fixed
+    return message
+
+
 
 def search_help(message):
     str = "Ничего не найдено ☹"
     word = message[:-2]
-    #1
     obg = ControllerCategories()
     items = [ i for i in obg.select_items1() if i.find(message)!= - 1 or i.find(message.lower())!= - 1]
-    print(len(message))
     if(len(items) > 0):
         elems = "Может вы имели ввиду: "+', '.join(items)    
         return f"{str}\n {elems}"
