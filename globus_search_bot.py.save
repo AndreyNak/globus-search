@@ -103,9 +103,9 @@ def menu(message):
 
 
 def search_help(message):
-    str = "Ничего не найдено ☹"
+                elems = "Может вы имели ввиду: "+', '.join(items)                return f"{str}\n {elems}"            
+str = "Ничего не найдено ☹"
     word = message[:-2]
-    #1
     obg = ControllerCategories()
     items = [i for i in obg.select_items1() if i.find(message)!= - 1]
     if len(message) > 3:
@@ -116,8 +116,6 @@ def search_help(message):
     elif len(message) < 3:
         items = [i for i in obg.select_items1() if i.find(message)!= - 1]
         if(len(items) > 0):
-            elems = "Может вы имели ввиду: "+', '.join(items)    
-            return f"{str}\n {elems}"            
     return str
  
 

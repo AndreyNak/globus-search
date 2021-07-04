@@ -103,9 +103,9 @@ def menu(message):
 
 
 def search_help(message):
-    str = "Ничего не найдено ☹"
+   
+   str = "Ничего не найдено ☹"
     word = message[:-2]
-    #1
     obg = ControllerCategories()
     items = [i for i in obg.select_items1() if i.find(message)!= - 1]
     if len(message) > 3:
