@@ -190,11 +190,15 @@ def show_category_goods(message):
     obg = ControllerCategories(message.text)
     сategory = obg.select_category()
     obg1 = ControllerTypeGoods(сategory.name_type)
-    type = obg1.select_type()
-    str =f" Категория: <b>{сategory.name}</b>\n Отдел: <b>{сategory.name_type}</b>\n Крыло: <b>{type.side}</b>"
-    bot.send_photo(
-        message.chat.id, photo=open(сategory.path, 'rb'),
-        caption=str, parse_mode="html")
+    try:
+        type = obg1.select_type()
+        str =f" Категория: <b>{сategory.name}</b>\n Отдел: <b>{сategory.name_type}</b>\n Крыло: <b>{type.side}</b>"
+        bot.send_photo(
+            message.chat.id, photo=open(сategory.path, 'rb'),
+            caption=str, parse_mode="html")
+    except Exception:
+         bot.send_message(
+            message.chat.id, 'данный отдел еще не создан')
 
 def photo_set_category(message):
         return ControllerCategories().load_photo(message,bot)
