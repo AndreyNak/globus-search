@@ -1,6 +1,5 @@
 from os import access
 from datetime import datetime
-import time
 import config
 import telebot
 from telebot import types
@@ -105,19 +104,31 @@ def menu(message):
 def search_help(message):
     str = "Ничего не найдено ☹"
     word = message[:-2]
+    print(message)
     obg = ControllerCategories()
-    items = [i for i in obg.select_items1() if i.find(message)!= - 1]
-    if len(message) > 3:
+    items = [ i for i in obg.select_items1() if i.find(message)!= - 1 or i.find(message.lower())!= - 1]
+    print(len(message))
+    if(len(items) > 0):
+        elems = "Может вы имели ввиду: "+', '.join(items)    
+        return f"{str}\n {elems}"
+    elif len(message) > 3:
         smart_search = [i for i in obg.select_items1() if i.find(word)!= - 1]
         if(len(smart_search) > 0):
-            elems = "Может вы имели ввиду: "+', '.join(smart_search)    
-            return f"{str}\n {elems}" 
-    elif len(message) < 3:
-        items = [i for i in obg.select_items1() if i.find(message)!= - 1]
-        if(len(items) > 0):
-            elems = "Может вы имели ввиду: "+', '.join(items)    
-            return f"{str}\n {elems}"            
+            elems = "Может вы имели ввиду: "+', '.join(smart_search)
+            return f"{str}\n {elems}"
     return str
+
+    # if len(message) > 3:
+    #     smart_search = [i for i in obg.select_items1() if i.find(word)!= - 1]
+    #     if(len(smart_search) > 0):
+    #         elems = "Может вы имели ввиду: "+', '.join(smart_search)    
+    #         return f"{str}\n {elems}" 
+    # elif len(message) < 3:
+    #     items = [i for i in obg.select_items1() if i.find(message)!= - 1]
+    #     if(len(items) > 0):
+    #         elems = "Может вы имели ввиду: "+', '.join(items)    
+    #         return f"{str}\n {elems}"            
+    # return str
  
 
 def check_type(message):
